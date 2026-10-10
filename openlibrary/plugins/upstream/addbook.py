@@ -66,23 +66,22 @@ def get_recaptcha():
         return None
 
 
-def make_work(doc):
+def make_work(doc: dict) -> web.Storage:
     w = web.storage(doc)
 
-    def make_author(key, name):
+    def make_author(key: str, name: str) -> Author:
         key = "/authors/" + key
         return web.ctx.site.new(
             key, {"key": key, "type": {"key": "/type/author"}, "name": name}
         )
 
-    w.authors = [
-        make_author(key, name)
-        for key, name in zip(doc['author_key'], doc['author_name'])
-    ]
-    w.cover_url = "/images/icons/avatar_book-sm.png"
+    author_keys = doc.get("author_key") or []
+    author_names = doc.get("author_name") or []
+    w.authors = [make_author(key, name) for key, name in zip(author_keys, author_names)]
 
-    w.setdefault('ia', [])
-    w.setdefault('first_publish_year', None)
+    w.setdefault("cover_url", "/images/icons/avatar_book-sm.png")
+    w.setdefault("ia", [])
+    w.setdefault("first_publish_year", None)
     return w
 
 
